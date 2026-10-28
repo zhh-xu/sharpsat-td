@@ -138,7 +138,6 @@ protected:
     for (auto it = beginOf(clause_ofs); *it != SENTINEL_LIT; it++) {
       len++;
       int dl = var(*it).decision_level;
-      unsigned var = (*it).var();
       assert(dl != INVALID_DL);
       assert(dl < (int)gluec_.size());
       if (gluec_[dl] != gluec_it_) {

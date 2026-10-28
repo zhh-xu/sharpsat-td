@@ -98,8 +98,9 @@ TreeDecomposition Treedecomp(const Graph& graph, double time, string tmp_dir) {
 		}
 	}
 	in.close();
-	system(("rm -f " + tmp1).c_str());
-	system(("rm -f " + tmp2).c_str());
+	int res = system(("rm -f " + tmp1).c_str());
+	res = system(("rm -f " + tmp2).c_str());
+	(void)res;
 	assert(dec.Width() <= claim_width);
 	cout << "c o width " << dec.Width() << endl;
 	assert(dec.Verify(graph));

@@ -813,7 +813,7 @@ bool Oracle::HardSolve() {
 	long_a = 1;
 	short_a = 1;
 	int cur_level = 2;
-	int last_var_ass_size = 0;
+	[[maybe_unused]] int last_var_ass_size = 0;
 	Var nv = 1;
 	while (true) {
 		size_t confl_clause = Propagate(cur_level);

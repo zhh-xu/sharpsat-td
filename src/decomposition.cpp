@@ -72,7 +72,8 @@ string TmpInstance(int a, int b, int c) {
   auto duration = now.time_since_epoch();
   uint64_t micros = chrono::duration_cast<chrono::microseconds>(duration).count();
   string dir = "td_tmp";
-  system(("mkdir -p " + dir).c_str());
+  int res = system(("mkdir -p " + dir).c_str());
+  (void)res;
   return dir+"/instance"+std::to_string(micros)+"_"+std::to_string(a)+"_"+std::to_string(b)+"_"+std::to_string(c)+".tmp";
 }
 
@@ -219,8 +220,9 @@ pair<int, vector<int>> Treewidth(const Graph& graph, double time) {
 		}
 	}
 	in.close();
-	system(("rm -f " + tmp1).c_str());
-	system(("rm -f " + tmp2).c_str());
+	int res = system(("rm -f " + tmp1).c_str());
+	res = system(("rm -f " + tmp2).c_str());
+	(void)res;
 	assert(bags[0].empty());
 	assert(tree[0].empty());
 	int centroid = 0;

@@ -32,7 +32,7 @@ chain(L l, const R&r){
 	for(int i=0; i<l.preimage_count(); ++i)
 		l.set(i, r(l(i)));
 	l.set_image_count(r.image_count());
-	return std::move(l);
+	return l;
 }
 
 template<class L, class R>

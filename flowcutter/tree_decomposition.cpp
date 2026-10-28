@@ -121,7 +121,7 @@ void print_tree_decompostion_of_order(std::ostream&out, ArrayIDIDFunc tail, Arra
 			out << (b+1) << ' ' << (p+1) << '\n';
 		};
 
-		std::vector<int>tail, head, weight;
+		std::vector<int>l_tail, l_head, l_weight; // l for local
 
 		for(int b=0; b<bag_count; ++b){
 			vector<int>neighbor_bags;
@@ -136,19 +136,19 @@ void print_tree_decompostion_of_order(std::ostream&out, ArrayIDIDFunc tail, Arra
 			}
 			for(auto p:neighbor_bags){
 				if(p != b){
-					tail.push_back(b);
-					head.push_back(p);
-					weight.push_back(compute_intersection_size(nodes_in_bag[b], nodes_in_bag[p]));
+					l_tail.push_back(b);
+					l_head.push_back(p);
+					l_weight.push_back(compute_intersection_size(nodes_in_bag[b], nodes_in_bag[p]));
 				}
 			}
 		}
 
-		int arc_count = tail.size();
+		int arc_count = l_tail.size();
 
 		auto out_arc = invert_id_id_func(
 			id_id_func(
 				arc_count, bag_count, 
-				[&](unsigned a){return tail[a];}
+				[&](unsigned a){return l_tail[a];}
 			)
 		);
 
@@ -162,12 +162,12 @@ void print_tree_decompostion_of_order(std::ostream&out, ArrayIDIDFunc tail, Arra
 					output_backbone_edge(0, b);
 				in_tree.set(b, true);
 				for(int a:out_arc(b))
-					q.push(a, weight[a]);
+					q.push(a, l_weight[a]);
 				while(!q.empty()){
 					int xy = q.pop();
 					
-					int x = tail[xy];
-					int y = head[xy];
+					int x = l_tail[xy];
+					int y = l_head[xy];
 
 					assert(in_tree(x));
 
@@ -176,7 +176,7 @@ void print_tree_decompostion_of_order(std::ostream&out, ArrayIDIDFunc tail, Arra
 						in_tree.set(y, true);
 						for(int yz:out_arc(y)){
 							assert(!q.contains(yz));
-							q.push(yz, weight[yz]);
+							q.push(yz, l_weight[yz]);
 						}
 					}
 				}
@@ -186,7 +186,8 @@ void print_tree_decompostion_of_order(std::ostream&out, ArrayIDIDFunc tail, Arra
 	}
 }
 
-void print_tree_decompostion_of_multilevel_partition(std::ostream&out, const ArrayIDIDFunc&tail, const ArrayIDIDFunc&head, const ArrayIDIDFunc&to_input_node_id, const std::vector<Cell>&cell_list){
+void print_tree_decompostion_of_multilevel_partition(std::ostream&out, const ArrayIDIDFunc&para_tail, const ArrayIDIDFunc&para_head, const ArrayIDIDFunc&to_input_node_id, const std::vector<Cell>&cell_list){
+	(void)para_tail; (void)para_head;
 	int bag_count = cell_list.size();
 
 	out << "s td "<< bag_count << ' ' << get_treewidth_of_multilevel_partition(cell_list) << ' ' << get_node_count_of_multilevel_partition(cell_list) << '\n';

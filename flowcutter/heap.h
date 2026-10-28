@@ -15,14 +15,14 @@ public:
 	typedef keyT key_type;
 	typedef key_orderT key_order_type;
 
-	explicit kway_min_id_heap(int id_count, key_order_type order = key_order_type()):
-		heap_end(0), heap(id_count), id_pos(id_count, -1), order(std::move(order)), contained_flags(id_count, false){
+	explicit kway_min_id_heap(int id_count, key_order_type para_order = key_order_type()):
+		heap_end(0), heap(id_count), id_pos(id_count, -1), order(std::move(para_order)), contained_flags(id_count, false){
 		check_id_invariants();
 		check_order_invariants();
 	}
 
-	explicit kway_min_id_heap(key_order_type order = key_order_type()):
-		heap_end(0), order(std::move(order)){
+	explicit kway_min_id_heap(key_order_type para_order = key_order_type()):
+		heap_end(0), order(std::move(para_order)){
 		check_id_invariants();
 		check_order_invariants();
 	}
@@ -484,7 +484,7 @@ public:
 private:
 	struct inverted_order{
 		inverted_order(){}
-		inverted_order(key_order_type order):order(std::move(order)){}
+		inverted_order(key_order_type para_order):order(std::move(para_order)){}
 		bool operator()(const key_type&l, const key_type&r){
 			return order(r, l);
 		}
@@ -502,11 +502,11 @@ private:
 public:
 	typedef typename super_type::key_order_type key_order_type;
 
-	explicit min_id_heap(int id_count, key_order_type order = key_order_type())
-		:super_type(id_count, std::move(order)){}
+	explicit min_id_heap(int id_count, key_order_type para_order = key_order_type())
+		:super_type(id_count, std::move(para_order)){}
 
-	explicit min_id_heap(key_order_type order = key_order_type())
-		:super_type(std::move(order)){}
+	explicit min_id_heap(key_order_type para_order = key_order_type())
+		:super_type(std::move(para_order)){}
 };
 
 template<class keyT, class key_orderT = std::less<keyT>>

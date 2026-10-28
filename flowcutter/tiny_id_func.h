@@ -41,7 +41,7 @@ public:
 
 	void set(int id, std::uint64_t value){
 		assert(0 <= id && id < preimage_ && "id out of bounds");
-		assert(0 <= value && value <= entry_mask && "value out of bounds");
+		assert(value <= entry_mask && "value out of bounds");
 		
 		int index = id / entry_count_per_uint64;
 		int offset = (id % entry_count_per_uint64)*bit_count;
@@ -50,7 +50,7 @@ public:
 	}
 
 	void fill(std::uint64_t value){
-		assert(0 <= value && value <= entry_mask && "value out of bounds");
+		assert(value <= entry_mask && "value out of bounds");
 
 		if(bit_count == 1){
 			if(value == false)
@@ -97,7 +97,7 @@ typedef TinyIntIDFunc<1> BitIDFunc;
 inline BitIDFunc operator~(BitIDFunc f){
 	for(int i=0; i<f.data_.preimage_count(); ++i)
 		f.data_[i] = ~f.data_[i];
-	return std::move(f);
+	return f;
 }
 
 inline BitIDFunc&operator^=(BitIDFunc&l, const BitIDFunc&r){
@@ -134,22 +134,22 @@ inline BitIDFunc&inplace_and_not(BitIDFunc&l, const BitIDFunc&r){
 
 inline BitIDFunc operator^(BitIDFunc l, const BitIDFunc&r){
 	l ^= r;
-	return std::move(l);
+	return l;
 }
 
 inline BitIDFunc operator|(BitIDFunc l, const BitIDFunc&r){
 	l |= r;
-	return std::move(l);
+	return l;
 }
 
 inline BitIDFunc operator&(BitIDFunc l, const BitIDFunc&r){
 	l &= r;
-	return std::move(l);
+	return l;
 }
 
 inline BitIDFunc and_not(BitIDFunc l, const BitIDFunc&r){
 	inplace_and_not(l, r);
-	return std::move(l);
+	return l;
 }
 
 #endif

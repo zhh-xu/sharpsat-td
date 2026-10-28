@@ -37,7 +37,6 @@ struct Instance {
   int total_lits = 0;
  private:
  	Lit RecConstruct(vector<Lit> clause);
- 	int format = 0;
  	int unit_clauses = 0;
 	int binary_clauses = 0;
 };

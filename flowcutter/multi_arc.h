@@ -39,8 +39,8 @@ bool is_symmetric(const Tail&tail, const Head&head){
 template<class Tail, class Head>
 class SymmetricHead{
 public:
-	SymmetricHead(Tail tail, Head head):
-		tail(std::move(tail)), head(std::move(head)){}
+	SymmetricHead(Tail para_tail, Head para_head):
+		tail(std::move(para_tail)), head(std::move(para_head)){}
 
 	int preimage_count()const{ return 2*tail.preimage_count(); }
 	int image_count()const {return tail.image_count(); }
@@ -64,8 +64,8 @@ SymmetricHead<Tail, Head>make_symmetric_head(Tail tail, Head head){
 template<class Tail, class Head>
 class SymmetricTail{
 public:
-	SymmetricTail(Tail tail, Head head):
-		tail(std::move(tail)), head(std::move(head)){}
+	SymmetricTail(Tail para_tail, Head para_head):
+		tail(std::move(para_tail)), head(std::move(para_head)){}
 
 	int preimage_count()const{ return 2*tail.preimage_count(); }
 	int image_count()const {return tail.image_count(); }

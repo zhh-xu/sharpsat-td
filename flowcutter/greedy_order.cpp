@@ -40,8 +40,8 @@ struct CountOutputIterator{
 		return {};
 	}
 
-	CountOutputIterator(int&n):
-		n(&n){};
+	CountOutputIterator(int& _n):
+		n(&_n){};
 
 	CountOutputIterator&operator++(){
 		++*n;
