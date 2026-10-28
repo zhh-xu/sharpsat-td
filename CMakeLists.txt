@@ -20,7 +20,8 @@ endif(STATIC)
 set(CMAKE_CXX_FLAGS "-std=c++17 -O3 -Wall -Wextra -Wshadow -g -Wfatal-errors -Wno-sign-compare -Wno-literal-suffix")
 
 SET(CMAKE_C_FLAGS "-std=c99 -Wall")
-# clhash needs SSE4.1/PCLMUL on x86; it has its own code path on ARM64.
+# clhash needs SSE4.1/PCLMUL on x86; on ARM64 it uses the bundled
+# src/clhash/sse2neon.h.
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(x86_64|AMD64|amd64|i[3-6]86)$")
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse4.1 -mpclmul")
 endif()
