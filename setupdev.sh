@@ -9,5 +9,6 @@ else
 fi
 make
 cd ..
+mkdir -p bin
 cp build/sharpSAT bin/sharpSAT
 cp build/flow_cutter_pace17 bin/flow_cutter_pace17
