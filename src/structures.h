@@ -13,8 +13,10 @@
 #include <cmath>
 #include <limits>
 #include <cassert>
+#include <string>
 #include "primitive_types.h"
 #include <gmpxx.h>
+#include <mpfr.h>
 #include "mpfr/mpreal.h"
 using namespace std;
 
@@ -82,6 +84,14 @@ struct SDouble {
     ret.has = true;
     return ret;
   }
+  friend ostream& operator<<(ostream& os, const SDouble& sd) {
+    if (sd.has) {
+      os << sd.n;
+    } else {
+      os << "0";
+    }
+    return os;
+  }
  private:
   double n = 0;
   bool has = false;
@@ -93,9 +103,26 @@ struct Smpr {
     n = 0;
     has = false;
   }
+  Smpr(string s) {
+    assert(s != "0");
+    assert(s != "");
+    n = mpfr::mpreal(s);
+    has = true;
+  }
+  Smpr(double d) {
+    assert(d != 0);
+    n = d;
+    has = true;
+  }
   void Init(double d) {
     assert(d != 0);
     n = d;
+    has = true;
+  }
+  void Init(string s) {
+    assert(s != "0");
+    assert(s != "");
+    n = mpfr::mpreal(s);
     has = true;
   }
   Smpr(const Smpr& other) {
@@ -116,11 +143,22 @@ struct Smpr {
     ret.has &= has;
     return ret;
   }
+  Smpr operator-(const Smpr& other) const {
+    Smpr ret;
+    ret.n = n - other.n;
+    ret.has = (ret.n != 0);
+    return ret;
+  }
   Smpr operator+(Smpr other) const {
     Smpr ret = other;
     ret.n += n;
     ret.has |= has;
     return ret;
+  }
+  Smpr& operator+=(const Smpr& other) {
+    n += other.n;
+    has |= other.has;
+    return *this;
   }
   Smpr& operator*=(const Smpr& other) {
     n *= other.n;
@@ -149,6 +187,16 @@ struct Smpr {
     ret.has = true;
     return ret;
   }
+  std::string str() { return n.toString(); }
+
+  friend ostream& operator<<(ostream& os, const Smpr& sd) {
+    if (sd.has) {
+      os << sd.n.toString();
+    } else {
+      os << "0";
+    }
+    return os;
+  }
  private:
   mpfr::mpreal n = 0;
   bool has = false;
@@ -160,9 +208,22 @@ struct Smpz {
     n = 0;
     has = false;
   }
+  Smpz(string s) {
+    n = s;
+    has = true;
+  }
+  Smpz(int i) {
+    n = i;
+    has = true;
+  }
   void Init(double d) {
     assert(d == 1 || d == -1);
     n = (int)d;
+    has = true;
+  }
+  void Init(string s) {
+    assert(s == "1" || s == "-1");
+    n = s;
     has = true;
   }
   Smpz(const Smpz& other) {
@@ -183,11 +244,22 @@ struct Smpz {
     ret.has &= has;
     return ret;
   }
+  Smpz operator-(const Smpz& other) const {
+    Smpz ret;
+    ret.n = n - other.n;
+    ret.has = (ret.n != 0);
+    return ret;
+  }
   Smpz operator+(Smpz other) const {
     Smpz ret = other;
     ret.n += n;
     ret.has |= has;
     return ret;
+  }
+  Smpz& operator+=(const Smpz& other) {
+    n += other.n;
+    has |= other.has;
+    return *this;
   }
   Smpz& operator*=(const Smpz& other) {
     n *= other.n;
@@ -218,6 +290,16 @@ struct Smpz {
     ret.n = 1;
     ret.has = true;
     return ret;
+  }
+  std::string str() const { return n.get_str(10); }
+
+  friend ostream& operator<<(ostream& os, const Smpz& sd) {
+    if (sd.has) {
+      os << sd.n.get_str(10);
+    } else {
+      os << "0";
+    }
+    return os;
   }
  private:
   mpz_class n = 0;
@@ -252,6 +334,8 @@ public:
   int toInt() const {
     return ((int) value_ >> 1) * ((sign()) ? 1 : -1);
   }
+
+  int human() const { return toInt(); }
 
   void inc(){++value_;}
 
