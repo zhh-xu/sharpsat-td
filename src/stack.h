@@ -11,6 +11,8 @@
 #include <gmpxx.h>
 #include <vector>
 
+namespace sstd {  // namespace for SharpSat-TD
+
 template<class T_num>
 class StackLevel {
 public:
@@ -155,5 +157,7 @@ public:
 };
 
 
+
+}  // namespace sstd
 
 #endif /* STACK_H_ */

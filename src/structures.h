@@ -18,6 +18,8 @@
 #include "mpfr/mpreal.h"
 using namespace std;
 
+namespace sstd {  // namespace for SharpSat-TD
+
 struct SDouble {
  public:
   SDouble() {
@@ -413,5 +415,7 @@ public:
   }
   static unsigned overheadInLits(){return sizeof(ClauseHeader)/sizeof(LiteralID);}
 };
+
+}  // namespace sstd
 
 #endif /* STRUCTURES_H_ */

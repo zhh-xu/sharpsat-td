@@ -8,6 +8,8 @@
 #ifndef PRIMITIVE_TYPES_H_
 #define PRIMITIVE_TYPES_H_
 
+namespace sstd {  // namespace for SharpSat-TD
+
 #define varsSENTINEL  0
 #define clsSENTINEL   NOT_A_CLAUSE
 
@@ -36,5 +38,7 @@ enum SOLVER_StateT {
 
 
 
+
+}  // namespace sstd
 
 #endif /* PRIMITIVE_TYPES_H_ */

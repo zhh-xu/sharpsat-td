@@ -23,6 +23,8 @@
 #include "decomposition.h"
 #include <deque>
 
+namespace sstd {  // namespace for SharpSat-TD
+
 enum retStateT {
 	EXIT, RESOLVED, PROCESS_COMPONENT, BACKTRACK
 };
@@ -1025,5 +1027,7 @@ void Solver<T_num>::printOnlineStats() {
   cout << "/" << Instance<T_num>::statistics_.num_binary_conflict_clauses_ << "/"
       << Instance<T_num>::unit_clauses_.size() << endl;
 }
+
+}  // namespace sstd
 
 #endif /* SOLVER_H_ */

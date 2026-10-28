@@ -25,6 +25,9 @@
 
 
 #include <iostream>
+
+namespace sstd {  // namespace for SharpSat-TD
+
 // State values for variables found during component
 // analysis (CA)
 typedef unsigned char CA_SearchState;
@@ -229,5 +232,7 @@ CA_SearchState *ComponentArchetype<T_num>::seen_ = nullptr;
 template <class T_num>
 unsigned ComponentArchetype<T_num>::seen_byte_size_ = 0;
 
+
+}  // namespace sstd
 
 #endif /* COMPONENT_ARCHETYPE_H_ */

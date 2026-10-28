@@ -11,6 +11,10 @@
 #include <string>
 #include <cstdint>
 #include <vector>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
 
 #include <gmpxx.h>
 
@@ -20,6 +24,8 @@
 #include "primitive_types.h"
 
 using namespace std;
+
+namespace sstd {  // namespace for SharpSat-TD
 
 template <class T_num>
 class DataAndStatistics {
@@ -231,13 +237,6 @@ public:
 
 };
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-
-using namespace std;
-
 template<typename T_num>
 inline void DataAndStatistics<T_num>::set_final_solution_count(const T_num &count) {
   assert(num_variables_ == num_used_variables_);
@@ -295,5 +294,7 @@ void DataAndStatistics<T_num>::printShort() {
   */
 }
 
+
+}  // namespace sstd
 
 #endif /* STATISTICS_H_ */

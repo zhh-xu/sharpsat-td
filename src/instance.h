@@ -15,6 +15,11 @@
 #include "preprocessor/graph.hpp"
 
 #include <assert.h>
+#include <algorithm>
+#include <fstream>
+#include <sys/stat.h>
+
+namespace sstd {  // namespace for SharpSat-TD
 
 template <class T_num>
 class Instance {
@@ -301,12 +306,6 @@ bool Instance<T_num>::addBinaryClause(LiteralID litA, LiteralID litB) {
  }
 
  
-#include <algorithm>
-#include <fstream>
-#include <sys/stat.h>
-
-using namespace std;
-
 template <class T_num>
 void Instance<T_num>::cleanClause(ClauseOfs cl_ofs) {
   bool satisfied = false;
@@ -824,5 +823,7 @@ void Instance<T_num>::PrepareTWScore(const sspp::TreeDecomposition& tdec, double
   }
 }
 
+
+}  // namespace sstd
 
 #endif /* INSTANCE_H_ */

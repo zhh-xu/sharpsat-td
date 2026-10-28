@@ -10,6 +10,8 @@
 
 #include "structures.h"
 
+namespace sstd {  // namespace for SharpSat-TD
+
 template<class _T>
 class LiteralIndexedVector: protected vector<_T> {
 
@@ -54,5 +56,7 @@ public:
 	using vector<_T>::push_back;
 	using vector<_T>::empty;
 };
+
+}  // namespace sstd
 
 #endif /* CONTAINERS_H_ */

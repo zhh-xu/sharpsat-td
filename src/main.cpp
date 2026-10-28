@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
   string tmp_dir;
   double decot = -1;
 
-  SolverConfiguration config_;
+  sstd::SolverConfiguration config_;
 
   uint64_t max_cache = 0;
 
@@ -196,7 +196,7 @@ int main(int argc, char *argv[]) {
     sspp::Graph primal(ins.vars, ins.clauses);
     sspp::TreeDecomposition tdecomp = sspp::decomp::Treedecomp(primal, decot, tmp_dir);
     cout<<"c o Now solving. "<<glob_timer.get()<<endl;
-    Solver<Smpz> theSolver(gen);
+    sstd::Solver<sstd::Smpz> theSolver(gen);
     theSolver.config() = config_;
     if (max_cache > 0) {
       theSolver.statistics().maximum_cache_size_bytes_ = max_cache;
@@ -238,7 +238,7 @@ int main(int argc, char *argv[]) {
     sspp::TreeDecomposition tdecomp = sspp::decomp::Treedecomp(primal, decot, tmp_dir);
     cout<<"c o Now solving. "<<glob_timer.get()<<endl;
     if (weighted == 1) {
-      Solver<SDouble> theSolver(gen);
+      sstd::Solver<sstd::SDouble> theSolver(gen);
       theSolver.config() = config_;
       if (max_cache > 0) {
         theSolver.statistics().maximum_cache_size_bytes_ = max_cache;
@@ -250,7 +250,7 @@ int main(int argc, char *argv[]) {
       PrintLog10(ans1*(double)ans0);
       PrintDouble(ans1*(double)ans0);
     } else {
-      Solver<Smpr> theSolver(gen);
+      sstd::Solver<sstd::Smpr> theSolver(gen);
       theSolver.config() = config_;
       if (max_cache > 0) {
         theSolver.statistics().maximum_cache_size_bytes_ = max_cache;

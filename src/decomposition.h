@@ -6,8 +6,12 @@
 // SharpSAT uses this anyway globally so...
 using namespace std;
 
+namespace sstd {  // namespace for SharpSat-TD
+
 namespace decomp {
 pair<int, vector<int>> ComputeTreewidth(const vector<vector<int>>& graph, double time);
 } // namespace decomp
+
+}  // namespace sstd
 
 #endif /* DECOMPOSITION_H_ */

@@ -17,6 +17,8 @@
 
 using namespace std;
 
+namespace sstd {  // namespace for SharpSat-TD
+
 template<class T_num>
 class CacheableComponent {
 public:
@@ -140,5 +142,7 @@ private:
 
 };
 
+
+}  // namespace sstd
 
 #endif /* CACHEABLE_COMPONENT_H_ */

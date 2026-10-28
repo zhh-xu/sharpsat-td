@@ -23,6 +23,8 @@
 #include "solver_config.h"
 using namespace std;
 
+namespace sstd {  // namespace for SharpSat-TD
+
 template <class T_num>
 class ComponentManager {
 public:
@@ -192,5 +194,7 @@ void ComponentManager<T_num>::removeAllCachePollutionsOf(StackLevel<T_num> &top)
   cache_.test_descendantstree_consistency();
 #endif
 }
+
+}  // namespace sstd
 
 #endif /* COMPONENT_MANAGEMENT_H_ */

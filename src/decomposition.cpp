@@ -12,6 +12,7 @@
 
 using Graph = vector<vector<int>>;
 
+namespace sstd {  // namespace for SharpSat-TD
 namespace decomp {
 namespace {
 void bfs(int x, const Graph& graph, vector<int>& u, vector<int>& vs) {
@@ -270,3 +271,5 @@ pair<int, vector<int>> ComputeTreewidth(const Graph& graph, double time) {
 }
 
 } // namespace decomp
+
+}  // namespace sstd

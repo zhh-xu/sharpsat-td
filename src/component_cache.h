@@ -19,6 +19,17 @@
 #include "stack.h"
 #include "hasher.h"
 
+#include <algorithm>
+#include <cstdint>
+#ifdef __linux__
+#include <sys/sysinfo.h>
+#elif __APPLE__ && __MACH__
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#endif
+
+namespace sstd {  // namespace for SharpSat-TD
+
 template<class T_num>
 class ComponentCache {
 public:
@@ -331,12 +342,7 @@ void ComponentCache<T_num>::storeValueOf(CacheEntryID id, const T_num &model_cou
 
 }
 
-#include <algorithm>
-
 #ifdef __linux__
-
-#include <sys/sysinfo.h>
-#include <cstdint>
 
 inline uint64_t freeram() {
 
@@ -347,9 +353,6 @@ inline uint64_t freeram() {
 }
 
 #elif __APPLE__ && __MACH__
-
-#include <sys/types.h>
-#include <sys/sysctl.h>
 
 
 inline uint64_t freeram() {
@@ -533,5 +536,7 @@ void ComponentCache<T_num>::debug_dump_data(){
               }
     cout << "model counts size " << alloc_model_counts << endl;
 }
+
+}  // namespace sstd
 
 #endif /* COMPONENT_CACHE_H_ */

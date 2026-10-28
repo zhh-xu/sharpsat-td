@@ -10,6 +10,8 @@
 
 using namespace std;
 
+namespace sstd {  // namespace for SharpSat-TD
+
 const size_t HashM = 2;
 using HashType = std::array<uint64_t, HashM>;
 
@@ -36,5 +38,7 @@ class Hasher {
  private:
   const void* random_data_[HashM];
 };
+
+}  // namespace sstd
 
 #endif /* HASHER_H_ */

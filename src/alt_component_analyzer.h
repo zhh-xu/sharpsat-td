@@ -22,6 +22,8 @@
 
 using namespace std;
 
+namespace sstd {  // namespace for SharpSat-TD
+
 template<class T_num>
 class AltComponentAnalyzer {
 public:
@@ -377,5 +379,7 @@ void AltComponentAnalyzer<T_num>::recordComponentOf(const VariableIndex var) {
 }
 
 
+
+}  // namespace sstd
 
 #endif /* ALT_COMPONENT_ANALYZER_H_ */

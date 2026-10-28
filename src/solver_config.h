@@ -8,6 +8,8 @@
 #ifndef SOLVER_CONFIG_H_
 #define SOLVER_CONFIG_H_
 
+namespace sstd {  // namespace for SharpSat-TD
+
 
 struct SolverConfiguration {
 
@@ -26,5 +28,7 @@ struct SolverConfiguration {
   bool vsads_act = true;
   bool vsads_act_init = true;
 };
+
+}  // namespace sstd
 
 #endif /* SOLVER_CONFIG_H_ */

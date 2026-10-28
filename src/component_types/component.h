@@ -15,6 +15,8 @@
 
 using namespace std;
 
+namespace sstd {  // namespace for SharpSat-TD
+
 class Component {
 public:
 
@@ -114,5 +116,7 @@ private:
 };
 
 
+
+}  // namespace sstd
 
 #endif /* COMPONENT_H_ */
