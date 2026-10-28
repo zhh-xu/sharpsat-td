@@ -55,6 +55,10 @@ public:
     cache_.storeValueOf(component_stack_[stack_comp_id]->id(), value);
   }
 
+  Component *componentOf(unsigned comp_ofs) {
+    return component_stack_[comp_ofs];
+  }
+
   Component & superComponentOf(StackLevel<T_num> &lev) {
     assert(component_stack_.size() > lev.super_component());
     return *component_stack_[lev.super_component()];

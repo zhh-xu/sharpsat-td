@@ -27,7 +27,8 @@
 namespace sstd {  // namespace for SharpSat-TD
 
 enum retStateT {
-	EXIT, RESOLVED, PROCESS_COMPONENT, BACKTRACK
+	EXIT, RESOLVED, PROCESS_COMPONENT, BACKTRACK,
+	FINALIZE // for subclasses that hand over the rest of a search
 };
 
 class StopWatch {
@@ -129,7 +130,7 @@ public:
 	        return Instance<T_num>::statistics_;
 	}
 
-private:
+protected: // for subclasses that drive the search (e.g. work sharing)
 	Hasher hasher_;
 
 	SolverConfiguration config_;

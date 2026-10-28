@@ -43,6 +43,9 @@ public:
   // in [unprocessed_components_end_, component_stack.size())
   unsigned unprocessed_components_end_ = 0;
 
+  // number of components selected with setNextUnprocessedComponent
+  unsigned processed_components_count_ = 0;
+
   T_num dec_weight = T_num::One();
 
   bool hasUnprocessedComponents() {
@@ -54,8 +57,22 @@ public:
     unprocessed_components_end_--;
   }
 
+  // Selects the component at remaining_components_ofs_ + compOfs as the
+  // next one to process, skipping those above it (for callers that pick
+  // the order of the components themselves, e.g. when sharing work).
+  void setNextUnprocessedComponent(unsigned compOfs) {
+    assert(remaining_components_ofs_ + compOfs < unprocessed_components_end_);
+    processed_components_count_++;
+    unprocessed_components_end_ = remaining_components_ofs_ + compOfs;
+  }
+
+  unsigned processed_components_count() const {
+    return processed_components_count_;
+  }
+
   void resetRemainingComps() {
     unprocessed_components_end_ = remaining_components_ofs_;
+    processed_components_count_ = 0;
   }
   unsigned super_component() {
     return super_component_;
@@ -111,6 +128,13 @@ public:
 //	  active_branch_ = 1;
 //  }
   const T_num getTotalModelCount() const;
+
+  const T_num getBranchModelCount() const {
+    return branch_model_count_[active_branch_];
+  }
+  const T_num getFirstBranchModelCount() const {
+    return branch_model_count_[false];
+  }
 };
 
 template<typename T_num>
