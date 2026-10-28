@@ -22,6 +22,7 @@
 
 #include "decomposition.h"
 #include <deque>
+#include <stdexcept>
 
 namespace sstd {  // namespace for SharpSat-TD
 
@@ -99,6 +100,26 @@ public:
 	Solver(std::mt19937_64& gen) : hasher_(gen) {}
 
 	T_num solve(const sspp::Instance& pp_ins, const sspp::TreeDecomposition& tdec);
+
+	// Incremental use: load the formula once with prepareSolver (and
+	// optionally variable scores and literal weights), then count it under
+	// several cubes. The component cache is kept between the calls.
+	void prepareSolver(unsigned nb_var, unsigned nb_cls,
+			const vector<vector<int> > &clauses);
+	void prepareTWScoreWithOrder(const vector<double> &order);
+	void prepareLitWeights(const vector<string> &litweights, unsigned nVars);
+
+	// Assigns the unit clauses and the assumptions and makes the component
+	// spanned by variables the only one to count. Throws std::runtime_error
+	// if propagation finds a conflict.
+	void initCubeInfo(const vector<VariableIndex> &variables,
+			const vector<LiteralID> &assumptions);
+
+	// count of the whole formula under the assumptions (DIMACS literals)
+	T_num solveWithCube(const vector<int> &assums);
+	// count of the component spanned by variables under the assumptions
+	T_num solveWithCube(const vector<VariableIndex> &variables,
+			const vector<LiteralID> &assums);
 
 	SolverConfiguration &config() {
 		return config_;
@@ -475,6 +496,112 @@ T_num Solver<T_num>::solve(const sspp::Instance& pp_ins, const sspp::TreeDecompo
 
 	comp_manager_.gatherStatistics();
 	Instance<T_num>::statistics_.printShort();
+	return Instance<T_num>::statistics_.final_solution_count();
+}
+
+template <class T_num>
+void Solver<T_num>::prepareSolver(unsigned nb_var, unsigned nb_cls,
+		const vector<vector<int> > &clauses) {
+	Instance<T_num>::createfromVector(nb_var, nb_cls, clauses);
+	comp_manager_.initialize(Instance<T_num>::literals_,
+			Instance<T_num>::literal_pool_, hasher_);
+
+	assert(literal_stack_.empty());
+	assert(comp_manager_.component_stack_size() == 2); // dummy and original
+}
+
+template <class T_num>
+void Solver<T_num>::prepareTWScoreWithOrder(const vector<double> &order) {
+	Instance<T_num>::prepareTWScoreWithOrder(order);
+}
+
+template <class T_num>
+void Solver<T_num>::prepareLitWeights(const vector<string> &litweights,
+		unsigned nVars) {
+	Instance<T_num>::loadWeights(litweights, nVars);
+}
+
+template <class T_num>
+void Solver<T_num>::initCubeInfo(const vector<VariableIndex> &variables,
+		const vector<LiteralID> &assumptions) {
+	initStack(Instance<T_num>::num_variables());
+
+	for (auto lit : Instance<T_num>::unit_clauses_)
+		setLiteralIfFree(lit);
+	for (auto lit : assumptions)
+		setLiteralIfFree(lit);
+
+	if (!BCP(0))
+		throw std::runtime_error("UNSAT detected during cube initialization.");
+
+	comp_manager_.reset(variables);
+
+	assert(comp_manager_.component_stack_size() == 2);
+	assert(stack_.size() == 1);
+}
+
+template <class T_num>
+T_num Solver<T_num>::solveWithCube(const vector<VariableIndex> &variables,
+		const vector<LiteralID> &assums) {
+	initCubeInfo(variables, assums);
+
+	T_num weighted_factor;
+	weighted_factor.Init(1);
+	if (Weighted())
+		for (auto lit : literal_stack_)
+			weighted_factor *= Instance<T_num>::lit_weights_[lit];
+
+	countSAT();
+
+	stack_.top().includeSolution(T_num::One()); // at least one
+
+	T_num count = weighted_factor * stack_.top().getTotalModelCount();
+
+	for (auto lit : literal_stack_)
+		unsetLiteral(lit);
+	literal_stack_.clear(); // unit clauses and assumptions
+
+	return count;
+}
+
+template <class T_num>
+T_num Solver<T_num>::solveWithCube(const vector<int> &assums) {
+	// prepareSolver must have been called
+	stopwatch_.start();
+
+	comp_manager_.reset(hasher_);
+	initStack(Instance<T_num>::num_variables());
+
+	T_num weighted_factor;
+	weighted_factor.Init(1);
+
+	assert(literal_stack_.size() == 0);
+	assert(stack_.size() == 1);
+	for (auto lit : Instance<T_num>::unit_clauses_)
+		setLiteralIfFree(lit);
+	for (int lit : assums)
+		setLiteralIfFree(LiteralID(lit));
+
+	[[maybe_unused]] bool succeeded = BCP(0);
+	assert(succeeded);
+
+	if (Weighted())
+		for (auto lit : literal_stack_)
+			weighted_factor *= Instance<T_num>::lit_weights_[lit];
+
+	Instance<T_num>::statistics_.exit_state_ = countSAT();
+
+	stack_.top().includeSolution(T_num::One()); // at least one
+
+	Instance<T_num>::statistics_.set_final_solution_count(
+			weighted_factor * stack_.top().getTotalModelCount());
+
+	stopwatch_.stop();
+
+	for (auto lit : literal_stack_)
+		unsetLiteral(lit);
+	literal_stack_.clear(); // unit clauses and assumptions
+
 	return Instance<T_num>::statistics_.final_solution_count();
 }
 

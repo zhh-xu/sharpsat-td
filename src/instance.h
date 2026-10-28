@@ -89,6 +89,10 @@ protected:
 
   bool createfromFile(const string &file_name);
   bool createfromPPIns(const sspp::Instance& pp_ins);
+  // nb_cls clauses of DIMACS literals over variables 1..nb_var; clauses
+  // must be free of duplicate and complementary literals
+  bool createfromVector(unsigned nb_var, unsigned nb_cls,
+                        const vector<vector<int> > &clauses);
 
   DataAndStatistics<T_num> statistics_;
 
@@ -241,10 +245,14 @@ protected:
   }
 
   void LoadWeights(const sspp::Instance& pp_ins, const unsigned int nVars);
+  // weights[2v] is the weight of v, weights[2v+1] that of -v
+  void loadWeights(const vector<string> &weights, const unsigned nVars);
 
 protected:
   vector<float> extra_score;
   void PrepareTWScore(const sspp::TreeDecomposition& tdec, double weight, int weight_mode);
+  // order[v] is used directly as the extra score of v
+  void prepareTWScoreWithOrder(const vector<double> &order);
 };
 
 template <class T_num>
@@ -758,6 +766,75 @@ bool Instance<T_num>::createfromPPIns(const sspp::Instance& pp_ins) {
   return true;
 }
 
+template <class T_num>
+bool Instance<T_num>::createfromVector(unsigned nb_var, unsigned nb_cls,
+                                       const vector<vector<int> > &clauses) {
+  unsigned nVars = nb_var, nCls = nb_cls;
+  vector<LiteralID> literals;
+
+  unsigned total_literals = 0;
+  for (const auto &clause : clauses)
+    total_literals += clause.size();
+
+  // clear everything
+  literal_pool_.clear();
+  literal_pool_.push_back(SENTINEL_LIT);
+
+  variables_.clear();
+  variables_.push_back(Variable()); //initializing the Sentinel
+  literal_values_.clear();
+  unit_clauses_.clear();
+
+  variables_.resize(nVars + 1);
+  literal_values_.resize(nVars + 1, X_TRI);
+  literal_pool_.reserve(total_literals + nCls + 10);
+  conflict_clauses_.reserve(2*nCls);
+  occurrence_lists_.clear();
+  occurrence_lists_.resize(nVars + 1);
+  lit_weights_.clear();
+
+  literals_.clear();
+  literals_.resize(nVars + 1);
+
+  gluec_.resize(nVars*2 + 2);
+
+  for (const auto &clause : clauses) {
+    literals.clear();
+    for (int lit : clause)
+      literals.push_back(lit);
+    assert(!literals.empty());
+    statistics_.incorporateClauseData(literals);
+    ClauseOfs cl_ofs = addClause(literals);
+    if (literals.size() >= 3)
+      for (auto l : literals)
+        occurrence_lists_[l].push_back(cl_ofs);
+  }
+
+  statistics_.num_variables_ = statistics_.num_original_variables_ = nVars;
+  statistics_.num_used_variables_ = num_variables();
+  statistics_.num_free_variables_ = nVars - num_variables();
+
+  statistics_.num_original_clauses_ = nCls;
+
+  statistics_.num_original_binary_clauses_ = statistics_.num_binary_clauses_;
+  statistics_.num_original_unit_clauses_ = statistics_.num_unit_clauses_ =
+      unit_clauses_.size();
+
+  original_lit_pool_size_ = literal_pool_.size();
+  return true;
+}
+
+template <class T_num>
+void Instance<T_num>::loadWeights(const vector<string> &weights,
+                                  const unsigned nVars) {
+  lit_weights_.resize(nVars + 1);
+  lit_mul_.resize(nVars + 1);
+  for (unsigned v = 1; v <= nVars; v++) {
+    lit_weights_[LiteralID(v, false)].Init(weights[v << 1 | 1]);
+    lit_weights_[LiteralID(v, true)].Init(weights[v << 1]);
+  }
+}
+
 template<typename T_num>
 inline void Instance<T_num>::LoadWeights(const sspp::Instance& pp_ins, const unsigned int nVars) {
   assert(pp_ins.weighted);
@@ -823,6 +900,20 @@ void Instance<T_num>::PrepareTWScore(const sspp::TreeDecomposition& tdec, double
   }
 }
 
+
+template <class T_num>
+void Instance<T_num>::prepareTWScoreWithOrder(const vector<double> &order) {
+  const int n = literals_.end_lit().var() - 1;
+  assert(extra_score.empty());
+  extra_score.resize(n + 1, 0);
+
+  if (n <= 2) return;
+  if (order.empty()) return;  // all extra scores stay 0
+
+  assert(order.size() == extra_score.size());
+  for (int i = 1; i <= n; i++)
+    extra_score[i] = order[i];
+}
 
 }  // namespace sstd
 

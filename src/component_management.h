@@ -38,6 +38,15 @@ public:
   void initialize(LiteralIndexedVector<Literal> & literals,
         vector<LiteralID> &lit_pool, const Hasher& hasher);
 
+  // Clear the component stack and restart from the whole formula (reset
+  // with a hasher) or from the component spanned by the given variables
+  // under the current assignment. The analyzer and the cache are kept.
+  void reset(const Hasher& hasher);
+  void reset(const vector<VariableIndex> &variables);
+
+  unsigned max_variable_id() { return ana_.max_variable_id(); }
+  unsigned max_clause_id() { return ana_.max_clause_id(); }
+
   unsigned scoreOf(VariableIndex v) {
       return ana_.scoreOf(v);
   }
@@ -170,6 +179,39 @@ void ComponentManager<T_num>::initialize(LiteralIndexedVector<Literal> & literal
 
 
   cache_.init(*component_stack_.back(), hasher);
+}
+
+template <class T_num>
+void ComponentManager<T_num>::reset(const Hasher& /*hasher*/) {
+  component_stack_.clear();
+  component_stack_.reserve(ana_.max_variable_id() + 2);
+  component_stack_.push_back(new Component());
+  component_stack_.push_back(new Component());
+  assert(component_stack_.size() == 2);
+  component_stack_.back()->createAsDummyComponent(ana_.max_variable_id(),
+      ana_.max_clause_id());
+}
+
+template <class T_num>
+void ComponentManager<T_num>::reset(const vector<VariableIndex> &variables) {
+  component_stack_.clear();
+  component_stack_.reserve(ana_.max_variable_id() + 2);
+  component_stack_.push_back(new Component());
+
+  // a dummy super component for the analysis context
+  Component dummy_comp;
+  dummy_comp.createAsDummyComponent(ana_.max_variable_id(),
+      ana_.max_clause_id());
+  StackLevel<T_num> dummy_level(0, 0, 1);  // not used
+
+  ana_.setupAnalysisContext(dummy_level, dummy_comp);
+
+  // the assumptions are already assigned in ana_
+  ana_.exploreComponentOfCube(variables);
+  Component *p_new_comp = ana_.makeComponentFromArcheType();
+  component_stack_.push_back(p_new_comp);
+
+  assert(component_stack_.size() == 2);
 }
 
 template<class T_num>

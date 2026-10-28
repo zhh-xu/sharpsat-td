@@ -90,8 +90,28 @@ public:
          archetype_.setClause_in_sup_comp_unseen(*itCl);
   }
 
+  // like setupAnalysisContext, but with all active variables and all
+  // clauses unseen (the whole formula as the super component)
+  void setupDummyAnalysisContext(){
+     archetype_.clearArrays();
+
+     for (unsigned vt = 1; vt <= max_variable_id_; vt++)
+       if (isActive(vt)) {
+         archetype_.setVar_in_sup_comp_unseen(vt);
+         var_frequency_scores_[vt] = 0;
+       }
+
+     for (unsigned clID = 1; clID <= max_clause_id_; clID++)
+         archetype_.setClause_in_sup_comp_unseen(clID);
+  }
+
   // returns true, iff the component found is non-trivial
   bool exploreRemainingCompOf(VariableIndex v);
+
+  // stores all information about the component spanned by the given
+  // variables (a component given explicitly by a caller, e.g. a cube)
+  // in variables_seen_, clauses_seen_ and component_search_stack
+  void exploreComponentOfCube(const vector<VariableIndex> &vars_in_comp);
 
 
   inline Component *makeComponentFromArcheType(){
@@ -335,6 +355,50 @@ inline bool AltComponentAnalyzer<T_num>::exploreRemainingCompOf(VariableIndex v)
     return false;
   }
   return true;
+}
+
+template <class T_num>
+void AltComponentAnalyzer<T_num>::exploreComponentOfCube(
+    const vector<VariableIndex> &vars_in_comp) {
+  setupDummyAnalysisContext();  // all variables and clauses are unseen
+
+  search_stack_.clear();
+  for (auto v : vars_in_comp)
+    if (isActive(v))
+      setSeenAndStoreInSearchStack(v);
+
+  for (auto vt = search_stack_.begin(); vt != search_stack_.end(); vt++) {
+    // BEGIN traverse binary clauses
+    assert(isActive(*vt));
+    unsigned *p = beginOfLinkList(*vt);
+    for (; *p; p++) {
+      if (manageSearchOccurrenceOf(LiteralID(*p, true))) {
+        var_frequency_scores_[*p]++;
+        var_frequency_scores_[*vt]++;
+      }
+    }
+    // END traverse binary clauses
+
+    for (p++; *p; p += 3) {
+      if (archetype_.clause_unseen_in_sup_comp(*p)) {
+        LiteralID litA = *reinterpret_cast<const LiteralID *>(p + 1);
+        LiteralID litB = *(reinterpret_cast<const LiteralID *>(p + 1) + 1);
+        if (isSatisfied(litA) || isSatisfied(litB))
+          archetype_.setClause_nil(*p);
+        else {
+          var_frequency_scores_[*vt]++;
+          manageSearchOccurrenceAndScoreOf(litA);
+          manageSearchOccurrenceAndScoreOf(litB);
+          archetype_.setClause_seen(*p, isActive(litA) & isActive(litB));
+        }
+      }
+    }
+    // END traverse ternary clauses
+
+    for (p++; *p; p += 2)
+      if (archetype_.clause_unseen_in_sup_comp(*p))
+        searchClause(*vt, *p, reinterpret_cast<LiteralID *>(p + 1 + *(p + 1)));
+  }
 }
 
 template <class T_num>
