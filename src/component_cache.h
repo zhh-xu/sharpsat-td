@@ -43,7 +43,8 @@ public:
             delete pentry;
   }
 
-  void init(Component &super_comp, const Hasher& hasher);
+  // quiet suppresses the progress messages (as SolverConfiguration::quiet)
+  void init(Component &super_comp, const Hasher& hasher, bool quiet = false);
 
   // compute the size in bytes of the component cache from scratch
   // the value is stored in bytes_memory_usage_
@@ -138,7 +139,8 @@ private:
     // otherwise the table_size_mask_ doesn't work
     assert((table_.size() & (table_.size() - 1)) == 0);
     table_size_mask_ = table_.size() - 1;
-    cout << "c o ts " << table_.size() << " " << table_size_mask_ << endl;
+    if (!quiet_)
+      cout << "c o ts " << table_.size() << " " << table_size_mask_ << endl;
     unsigned collisions = 0;
     for (unsigned id = 2; id < entry_base_.size(); id++)
       if (entry_base_[id] != nullptr ){
@@ -150,7 +152,8 @@ private:
         table_[table_ofs] = id;
        }
     }
-    cout << "c o coll " << collisions << endl;
+    if (!quiet_)
+      cout << "c o coll " << collisions << endl;
   }
 
   unsigned tableEntry(CacheEntryID id){
@@ -178,6 +181,8 @@ private:
   unsigned table_size_mask_;
 
   DataAndStatistics<T_num> &statistics_;
+
+  bool quiet_ = false;
 
   unsigned long my_time_ = 0;
 };
@@ -378,7 +383,8 @@ ComponentCache<T_num>::ComponentCache(DataAndStatistics<T_num> &statistics) :
 }
 
 template <class T_num>
-void ComponentCache<T_num>::init(Component &super_comp, const Hasher& hasher) {
+void ComponentCache<T_num>::init(Component &super_comp, const Hasher& hasher, bool quiet) {
+  quiet_ = quiet;
 
    // cout << sizeof(CacheableComponent<T_num>) << " " << sizeof(T_num) << endl;
     CacheableComponent<T_num> &packed_super_comp = *new CacheableComponent<T_num>(super_comp, hasher);
@@ -406,8 +412,9 @@ void ComponentCache<T_num>::init(Component &super_comp, const Hasher& hasher) {
     cout << "c o Free RAM " << free_ram / 1000000 << "MB" << endl;
   }
 
-  cout << "c o Maximum cache size:\t"
-      << statistics_.maximum_cache_size_bytes_ / 1000000 << " MB" << endl;
+  if (!quiet_)
+    cout << "c o Maximum cache size:\t"
+        << statistics_.maximum_cache_size_bytes_ / 1000000 << " MB" << endl;
 
   assert(!statistics_.cache_full());
 

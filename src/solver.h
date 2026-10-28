@@ -751,8 +751,11 @@ retStateT Solver<T_num>::resolveConflict() {
 		clause_budjet = 1000;
 	}
 	if ((int)Instance<T_num>::conflict_clauses_.size() > clause_budjet) {
-		cout << "c o cleaning clauses "<<Instance<T_num>::conflict_clauses_.size()<<" "<<clause_budjet<<endl;
+		if (!config_.quiet)
+			cout << "c o cleaning clauses "<<Instance<T_num>::conflict_clauses_.size()<<" "<<clause_budjet<<endl;
 		int cutoff = Instance<T_num>::deleteConflictClauses();
+		if (!config_.quiet)
+			cout<<"c o cutoff "<<cutoff<<endl;
 		assert(Instance<T_num>::statistics_.num_decisions_ > last_del_decs_);
 		assert(Instance<T_num>::statistics_.num_conflicts_ > last_del_confls_);
 		unsigned new_decs_ = Instance<T_num>::statistics_.num_decisions_-last_del_decs_;
@@ -790,7 +793,8 @@ retStateT Solver<T_num>::resolveConflict() {
 		if (clause_budjet >= 200000) {
 			clause_budjet = 200000;
 		}
-		cout << "c o cleaned clauses "<<Instance<T_num>::conflict_clauses_.size()<<" "<<clause_budjet<<" "<<target<<endl;
+		if (!config_.quiet)
+			cout << "c o cleaned clauses "<<Instance<T_num>::conflict_clauses_.size()<<" "<<clause_budjet<<" "<<target<<endl;
 	}
 
 	if (Instance<T_num>::statistics_.num_clauses_learned_ - last_ccl_cleanup_time_ > 100000) {
@@ -1157,6 +1161,8 @@ void Solver<T_num>::recordAllUIPCauses() {
 
 template <class T_num>
 void Solver<T_num>::printOnlineStats() {
+	if (config_.quiet)
+		return;
 	cout << "c o time elapsed: " << stopwatch_.getElapsedSeconds() << "s" << endl;
 	cout << "c o decisions "<<Instance<T_num>::statistics_.num_decisions_<<endl;
 	cout << "c o conflicts "<<Instance<T_num>::statistics_.num_conflicts_<<endl;

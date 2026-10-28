@@ -551,8 +551,6 @@ int Instance<T_num>::deleteConflictClauses() {
 
   cutoff = max(cutoff, (unsigned)3);
 
-  cout<<"c o cutoff "<<cutoff<<endl;
-
   for(unsigned i = 0; i < tmp_conflict_clauses.size(); i++){
     if(tmp_glues[i] > cutoff || (tmp_glues[i] == cutoff && conflict_clauses_.size() > tmp_conflict_clauses.size()/2)){
       if(!markClauseDeleted(tmp_conflict_clauses[i])) {

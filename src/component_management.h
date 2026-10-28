@@ -182,7 +182,7 @@ void ComponentManager<T_num>::initialize(LiteralIndexedVector<Literal> & literal
       ana_.max_clause_id());
 
 
-  cache_.init(*component_stack_.back(), hasher);
+  cache_.init(*component_stack_.back(), hasher, config_.quiet);
 }
 
 template <class T_num>
