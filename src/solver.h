@@ -143,6 +143,12 @@ protected: // for subclasses that drive the search (e.g. work sharing)
 	ComponentManager<T_num> comp_manager_ = ComponentManager<T_num>(config_,
 			Instance<T_num>::statistics_, Instance<T_num>::literal_values_, Instance<T_num>::lit_weights_);
 
+	// With incremental use (prepareSolver), the assumptions are assigned at
+	// decision level 0 and differ between calls, while learned clauses are
+	// kept. Level-0 literals must then stay in learned clauses; only
+	// literals of unit clauses of the formula may be dropped.
+	bool keep_level0_lits_ = false;
+
 	int clause_budjet = 10000;
 	unsigned last_ccl_cleanup_time_ = 0;
 
@@ -504,6 +510,7 @@ template <class T_num>
 void Solver<T_num>::prepareSolver(unsigned nb_var, unsigned nb_cls,
 		const vector<vector<int> > &clauses) {
 	Instance<T_num>::createfromVector(nb_var, nb_cls, clauses);
+	keep_level0_lits_ = true;
 	comp_manager_.initialize(Instance<T_num>::literals_,
 			Instance<T_num>::literal_pool_, hasher_);
 
@@ -982,7 +989,8 @@ void Solver<T_num>::recordLastUIPCauses() {
 	unsigned lits_at_current_dl = 0;
 
 	for (auto l : violated_clause) {
-		if (Instance<T_num>::var(l).decision_level == 0 || Instance<T_num>::existsUnitClauseOf(l.var()))
+		if ((!keep_level0_lits_ && Instance<T_num>::var(l).decision_level == 0)
+				|| Instance<T_num>::existsUnitClauseOf(l.var()))
 			continue;
 		if (Instance<T_num>::var(l).decision_level < DL)
 			tmp_clause.push_back(l);
@@ -1023,7 +1031,8 @@ void Solver<T_num>::recordLastUIPCauses() {
 
 			for (auto it = Instance<T_num>::beginOf(Instance<T_num>::getAntecedent(curr_lit).asCl()) + 1;
 					*it != SENTINEL_CL; it++) {
-				if (seen[it->var()] || (Instance<T_num>::var(*it).decision_level == 0)
+				if (seen[it->var()]
+						|| (!keep_level0_lits_ && Instance<T_num>::var(*it).decision_level == 0)
 						|| Instance<T_num>::existsUnitClauseOf(it->var()))
 					continue;
 				if (Instance<T_num>::var(*it).decision_level < DL)
@@ -1036,7 +1045,8 @@ void Solver<T_num>::recordLastUIPCauses() {
 			LiteralID alit = Instance<T_num>::getAntecedent(curr_lit).asLit();
 			Instance<T_num>::literal(alit).increaseActivity();
 			Instance<T_num>::literal(curr_lit).increaseActivity();
-			if (!seen[alit.var()] && !(Instance<T_num>::var(alit).decision_level == 0)
+			if (!seen[alit.var()]
+					&& !(!keep_level0_lits_ && Instance<T_num>::var(alit).decision_level == 0)
 					&& !Instance<T_num>::existsUnitClauseOf(alit.var())) {
 				if (Instance<T_num>::var(alit).decision_level < DL)
 					tmp_clause.push_back(alit);

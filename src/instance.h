@@ -249,7 +249,7 @@ protected:
   void loadWeights(const vector<string> &weights, const unsigned nVars);
 
 protected:
-  vector<float> extra_score;
+  vector<double> extra_score;
   void PrepareTWScore(const sspp::TreeDecomposition& tdec, double weight, int weight_mode);
   // order[v] is used directly as the extra score of v
   void prepareTWScoreWithOrder(const vector<double> &order);
@@ -624,6 +624,8 @@ bool Instance<T_num>::createfromFile(const string &file_name) {
 
   literals_.clear();
   literals_.resize(nVars + 1);
+
+  gluec_.resize(nVars*2 + 2);
 
   while ((input_file >> c) && clauses_added < nCls) {
     input_file.unget(); //extracted a nonspace character to determine if we have a clause, so put it back

@@ -454,7 +454,7 @@ bool ComponentCache<T_num>::deleteEntries() {
 
   vector<double> scores;
   for (auto it = entry_base_.begin() + 1; it != entry_base_.end(); it++)
-    if (*it != nullptr && (*it)->isDeletable()) {
+    if (*it != nullptr && (*it)->father() && (*it)->isDeletable()) {
       scores.push_back((double) (*it)->creation_time());
     }
   sort(scores.begin(), scores.end());
@@ -468,7 +468,7 @@ bool ComponentCache<T_num>::deleteEntries() {
   // should always stay here!
   for (unsigned id = 2; id < entry_base_.size(); id++)
     if (entry_base_[id] != nullptr &&
-        entry_base_[id]->isDeletable() &&
+        entry_base_[id]->father() && entry_base_[id]->isDeletable() &&
           (double) entry_base_[id]->creation_time() <= cutoff) {
         removeFromDescendantsTree(id);
         eraseEntry(id);

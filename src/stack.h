@@ -119,6 +119,7 @@ public:
   bool branch_found_unsat() const;
   void mark_branch_unsat() {
     branch_found_unsat_[active_branch_] = true;
+    branch_model_count_[active_branch_] = T_num::Zero();
   }
 
 //  void set_both_branches_unsat(){
